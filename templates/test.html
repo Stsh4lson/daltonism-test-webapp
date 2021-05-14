@@ -1,0 +1,36 @@
+<!-- extend base layout -->
+{% extends "base.html" %} {% block content %}
+<section class="jumbotron text-center">
+    <div class="page-header">
+        <h1>Daltonism test</h1>
+    </div>
+
+    <figure class="figure">
+        <img src="static/test_images/{{img_name}}" class="figure-img img-fluid rounded" alt="Test image">
+        <!-- <figcaption class="figure-caption">A caption for the above image.</figcaption> -->
+    </figure>
+    <form role="form" action="/next_question/" method="post">
+        <b>What number do you see?</b>
+        <div class="form-group mb-auto">
+            <input type="radio" class="btn-check" name="question" id="option1" value="{{answer_1}}" autocomplete="off" checked>
+            <label class="btn btn-secondary answer-button mx-2" for="option1">{{answer_1}}</label>
+
+            <input type="radio" class="btn-check" name="question" id="option2" value="{{answer_2}}" autocomplete="off">
+            <label class="btn btn-secondary answer-button mx-2" for="option2">{{answer_2}}</label>
+
+            <input type="radio" class="btn-check" name="question" id="option3" value="5" autocomplete="off">
+            <label class="btn btn-secondary answer-button mx-2" for="option3">{{answer_3}}</label>
+
+            <input type="radio" class="btn-check" name="question" id="option4" value="{{answer_4}}" autocomplete="off">
+            <label class="btn btn-secondary answer-button mx-2" for="option4">{{answer_4}}</label>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Next</button>
+    </form>
+
+
+
+</section>
+
+
+
+{% endblock %}
