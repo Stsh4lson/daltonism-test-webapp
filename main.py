@@ -80,7 +80,9 @@ def next_question():
 	if counter < len(img_list):
 		return redirect("/test")
 	else:
+		g.start = None
 		return redirect("/save/")
+		
 
 @app.route("/test")
 def do_testing():	
