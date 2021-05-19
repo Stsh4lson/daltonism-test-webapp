@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, request, url_for, session
+from flask import globals as g
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import date, datetime
 import secrets
 import statistics
 
@@ -12,19 +13,18 @@ app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
 
 db = SQLAlchemy(app)
 
+g.start = None
 
 class Formdata(db.Model):
 	__tablename__ = 'formdata'
 	id = db.Column(db.Integer, primary_key=True)
-	created_at = db.Column(db.DateTime, default=datetime.now)
-	q1 = db.Column(db.Integer)
-	q2 = db.Column(db.Integer)
-	q3 = db.Column(db.Integer)
+	# created_at = db.Column(db.DateTime, default=datetime.now)
+	solved = db.Column(db.Integer)
+	time = db.Column(db.Integer)
 
-	def __init__(self, q1, q2, q3):		
-		self.q1 = q1
-		self.q2 = q2
-		self.q3 = q3
+	def __init__(self, solved, time):
+		self.solved = solved	
+		self.time = time
 
 db.create_all()
 
@@ -32,7 +32,6 @@ db.create_all()
 @app.route("/")
 def welcome():
 	return render_template('welcome.html')
-
 
 @app.route("/form")
 def show_form():
@@ -42,7 +41,6 @@ def show_form():
 def show_raw():
 	fd = db.session.query(Formdata).all()
 	return render_template('raw.html', formdata=fd)
-
 
 
 img_list = ['Ishihara_2.svg', 'Ishihara_2.svg', 'Ishihara_2.svg']
@@ -57,16 +55,28 @@ def start_test():
 					  "test_2": 0,
 					  "test_3": 0,
 					 }
-	
+	session['time'] = {
+					"time_1": 0,
+					"time_2": 0,
+					"time_3": 0,
+					}
 	session['index_add_counter'] = 0
 	return redirect("/next_question/")
 
 @app.route("/next_question/", methods=['POST', 'GET'])
 def next_question():
+	if g.start == None:
+		g.start = datetime.now()
 	counter = session['index_add_counter']
 	if session['index_add_counter']!=0:
 		answer = request.form['question']
 		session['answers'][f"test_{counter}"] = answer
+
+		#calculating elapsed time 
+		time = datetime.now() - g.start
+		session['time'][f"time_{counter}"] = time.total_seconds()
+		g.start = datetime.now()
+		
 	session['index_add_counter'] = counter+1
 
 	if counter < len(img_list):
@@ -90,14 +100,11 @@ def do_testing():
 def save():
 	# Get data from FORM
 	answers = session['answers']
+	time = session['time']
 	print(answers)
-	q1 = answers['test_1']
-	q2 = answers['test_2']
-	q3 = answers['test_3']
-
-	# Save the data
-	fd = Formdata(q1, q2, q3)
-	db.session.add(fd)
+	for i in range(len(answers)):
+		fd = Formdata(answers[f"test_{i+1}"], time[f"time_{i+1}"])
+		db.session.add(fd)
 	db.session.commit()
 
 	return redirect('/')
