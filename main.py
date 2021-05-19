@@ -71,12 +71,10 @@ def next_question():
 	if session['index_add_counter']!=0:
 		answer = request.form['question']
 		session['answers'][f"test_{counter}"] = answer
-
 		#calculating elapsed time 
 		time = datetime.now() - g.start
 		session['time'][f"time_{counter}"] = time.total_seconds()
 		g.start = datetime.now()
-		
 	session['index_add_counter'] = counter+1
 
 	if counter < len(img_list):
