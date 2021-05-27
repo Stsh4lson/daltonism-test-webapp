@@ -108,6 +108,10 @@ def do_testing():
 							answer_4=questions[3]
 						   )
 
+@app.route("/info")
+def do_info():	
+	return render_template('info.html')
+
 @app.route("/save/", methods=['POST', 'GET'])
 def save():
 	# Get data from FORM
