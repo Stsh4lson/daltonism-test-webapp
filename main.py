@@ -129,23 +129,21 @@ def do_info():
 
 @app.route('/plot/')
 def plot_png():
-    fig = create_figure()
-    plt.savefig("static\graphs\disp.png")
+    
     return  redirect('/display_results')
 
 @app.route('/display_results')
 def display_png():
-
+    create_figure()
     return render_template('display_results.html')
 
 
 def create_figure():
-    fig = Figure()
-    axis = fig.add_subplot(1, 1, 1)
     xs = range(100)
     ys = [random.randint(1, 50) for x in xs]
-    axis.plot(xs, ys)
-    return fig
+    plt.plot(xs, ys)
+    plt.savefig("static\graphs\disp.png")
+
 
 @app.route("/save/", methods=['POST', 'GET'])
 def save():
@@ -170,3 +168,5 @@ def save():
 if __name__ == "__main__":
     app.debug = True
     app.run()
+
+# %%
