@@ -1,10 +1,16 @@
-from flask import Flask, render_template, redirect, request, url_for, session
+from flask import Flask, render_template, redirect, request, url_for, session,Response
 from flask import globals as g
 from flask_sqlalchemy import SQLAlchemy
 from datetime import date, datetime
 import numpy as np
 import secrets
 import statistics
+import io
+import random
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -102,7 +108,7 @@ def next_question():
         return redirect("/test")
     else:
         g.start = None
-        return redirect("/save/")
+        return redirect("/plot/")
         
 
 @app.route("/test")
@@ -120,6 +126,26 @@ def do_testing():
 @app.route("/info")
 def do_info():	
     return render_template('info.html')
+
+@app.route('/plot/')
+def plot_png():
+    fig = create_figure()
+    plt.savefig("static\graphs\disp.png")
+    return  redirect('/display_results')
+
+@app.route('/display_results')
+def display_png():
+
+    return render_template('display_results.html')
+
+
+def create_figure():
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+    xs = range(100)
+    ys = [random.randint(1, 50) for x in xs]
+    axis.plot(xs, ys)
+    return fig
 
 @app.route("/save/", methods=['POST', 'GET'])
 def save():
