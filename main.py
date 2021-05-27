@@ -43,10 +43,22 @@ def show_raw():
 	return render_template('raw.html', formdata=fd)
 
 
-img_list = ['Ishihara_2.svg', 'Ishihara_2.svg', 'Ishihara_2.svg']
-possible_answers = [[5, 1, 67, 2],
-					[12, 6, 67, 2],
-					[2, 1, 12, 2]]
+img_list = ['4.3.png', '4.png', '1.3.png', '6.9.png', '1.7.png', '7.png', '4.6.png', '4.2.png', '4.8.png', '6.11.png', '1.5.png', '4.7.png', '1.3.png', '1.5.png', '4.7.png']
+possible_answers = [[1, 2, 4, 7],
+					[2, 4, 8, 9],
+					[1, 3, 4, 7],
+					[2, 5, 6, 9],
+					[1, 4, 7, 8],
+					[1, 3, 4, 7],
+					[2, 4, 6, 8],
+					[3, 4, 5, 7],
+					[2, 4, 6, 8],
+					[1, 3, 6, 9],
+					[1, 4, 5, 6],
+					[1, 4, 6, 8],
+					[1, 4, 6, 9],
+					[1, 3, 7, 8],
+					[4, 7, 8, 9]]
 
 @app.route("/start_test/", methods=['POST'])
 def start_test():
