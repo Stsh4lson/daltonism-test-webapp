@@ -11,14 +11,10 @@
     <thead>
     <tr>
         <th>#</th>
-        <th>Created at</th>
-        <th>First Name</th>
-        <th>Email</th>
-        <th>Age</th>
-        <th>Income</th>
-        <th>Satisfaction</th>
-        <th>Python</th>
-        <th>Flask</th>
+        <th>unique_user_id</th>
+        <th>number of task</th>
+        <th>answer</th>
+        <th>time</th>
     </tr>
     </thead>
 
@@ -26,14 +22,10 @@
     {% for element in formdata %}
     <tr>
         <td>{{ element.id }}</td>
-        <td>{{ element.created_at }}</td>
-        <td>{{ element.firstname }}</td>
-        <td>{{ element.email }}</td>
-        <td>{{ element.age }}</td>
-        <td>{{ element.income }}</td>
-        <td>{{ element.satisfaction }}</td>
-        <td>{{ element.q1 }}</td>
-        <td>{{ element.q2 }}</td>
+        <td>{{ element.unique_user_id }}</td>
+        <td>{{ element.no_task }}</td>
+        <td>{{ element.solved }}</td>
+        <td>{{ element.time }}</td>
 
     </tr>
     {% endfor %}
