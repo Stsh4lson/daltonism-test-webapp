@@ -1,3 +1,4 @@
+#%%
 from flask import Flask, render_template, redirect, request, url_for, session,Response
 from flask import globals as g
 from flask_sqlalchemy import SQLAlchemy
@@ -10,6 +11,12 @@ import random
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
+import pandas as pd
+from os import environ
+from sqlalchemy import create_engine
+import json
+import plotly
+import plotly.express as px
 
 
 app = Flask(__name__)
@@ -28,17 +35,24 @@ class Formdata(db.Model):
     # created_at = db.Column(db.DateTime, default=datetime.now)
     unique_user_id = db.Column(db.Text)
     no_task = db.Column(db.Integer)
+    correct_answer = db.Column(db.Integer)
     solved = db.Column(db.Integer)
     time = db.Column(db.Integer)
+    is_correct = db.Column(db.Boolean)
 
-    def __init__(self, unique_user_id, no_task, solved, time):
+    def __init__(self, unique_user_id, no_task,correct_answer, solved, time, is_correct):
+        
         self.unique_user_id = unique_user_id
         self.no_task = no_task
+        self.correct_answer = correct_answer
         self.solved = solved
         self.time = time
+        self.is_correct = is_correct
 
 db.create_all()
 
+db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+engine = create_engine(db_uri, echo=True)
 
 @app.route("/")
 def welcome():
@@ -70,6 +84,7 @@ possible_answers = [[1, 2, 4, 7],
                     [1, 4, 6, 9],
                     [1, 3, 7, 8],
                     [4, 7, 8, 9]]
+correct_answers = [4, 4, 1, 6, 1, 7, 4, 4, 4 ,6 ,1, 4, 1, 1, 4]
 
 @app.route("/start_test/", methods=['POST'])
 def start_test():
@@ -108,7 +123,7 @@ def next_question():
         return redirect("/test")
     else:
         g.start = None
-        return redirect("/plot/")
+        return redirect("/save/")
         
 
 @app.route("/test")
@@ -127,23 +142,6 @@ def do_testing():
 def do_info():	
     return render_template('info.html')
 
-@app.route('/plot/')
-def plot_png():
-    
-    return  redirect('/display_results')
-
-@app.route('/display_results')
-def display_png():
-    create_figure()
-    return render_template('display_results.html')
-
-
-def create_figure():
-    xs = range(100)
-    ys = [random.randint(1, 50) for x in xs]
-    plt.plot(xs, ys)
-    plt.savefig("static\graphs\disp.png")
-
 
 @app.route("/save/", methods=['POST', 'GET'])
 def save():
@@ -153,17 +151,44 @@ def save():
     unique_user_id = session['unique_user_id']
     answers = session['answers']
     time = session['time']
-    print(no_task)
+
+    answ_arr = np.array([*answers.values()]).astype(np.int)
+    bool_Arr = np.equal(answ_arr, correct_answers)
+
     for i in range(len(answers)):
         fd = Formdata(unique_user_id,
                       no_task[i],
+                      correct_answers[i],
                       answers[f"test_{i+1}"],
-                      time[f"time_{i+1}"])
+                      time[f"time_{i+1}"],
+                      bool_Arr[i]
+                      )
         db.session.add(fd)
     db.session.commit()
 
-    return redirect('/')
 
+    return redirect('/display_results')
+    
+@app.route('/display_results', methods=['POST', 'GET'])
+def display():
+
+    unique_user_id = session['unique_user_id']
+    table_df = pd.read_sql('SELECT * FROM formdata', con=engine, coerce_float=True)
+
+    table_df_filtered = table_df[table_df["unique_user_id"]  ==  unique_user_id]
+
+    fig = px.scatter(x = table_df_filtered["no_task"], y=table_df_filtered["time"],color = table_df_filtered["is_correct"].astype(bool), labels = {'x':'Number of task', 'y': 'Time[s]', 'color':'Is correct?'}, template = 'plotly_white')
+    fig.update_traces(
+                    marker=dict(size=17,
+                              line=dict(width=2,
+                                        color='DarkSlateGrey')),
+                    selector=dict(mode='markers'),
+    )
+
+
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return render_template('display_results.html',graphJSON=graphJSON)
 
 if __name__ == "__main__":
     app.debug = True
