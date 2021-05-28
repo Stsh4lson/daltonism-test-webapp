@@ -12,11 +12,13 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import pandas as pd
-from os import environ
+from os import environ, name
 from sqlalchemy import create_engine
 import json
 import plotly
 import plotly.express as px
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 
 
 app = Flask(__name__)
@@ -175,16 +177,38 @@ def display():
     unique_user_id = session['unique_user_id']
     table_df = pd.read_sql('SELECT * FROM formdata', con=engine, coerce_float=True)
 
-    table_df_filtered = table_df[table_df["unique_user_id"]  ==  unique_user_id]
+    table_df_filtered_true = table_df[(table_df["unique_user_id"]  ==  unique_user_id) & (table_df["is_correct"] == 1)]
+    table_df_filtered_false = table_df[(table_df["unique_user_id"]  ==  unique_user_id) & (table_df["is_correct"] == 0)]
+    table_df_rest_true = table_df[(table_df["unique_user_id"] !=  unique_user_id) & (table_df["is_correct"] == 1)]
+    table_df_rest_false = table_df[(table_df["unique_user_id"]  !=  unique_user_id) & (table_df["is_correct"] == 0)]
 
-    fig = px.scatter(x = table_df_filtered["no_task"], y=table_df_filtered["time"],color = table_df_filtered["is_correct"].astype(bool), labels = {'x':'Number of task', 'y': 'Time[s]', 'color':'Is correct?'}, template = 'plotly_white')
-    fig.update_traces(
-                    marker=dict(size=17,
-                              line=dict(width=2,
-                                        color='DarkSlateGrey')),
-                    selector=dict(mode='markers'),
-    )
+    fig = make_subplots(rows=3, cols=1, vertical_spacing=0.05,subplot_titles=("Your answers", "Violin plots of your correct vs false answers", "Violin plots of other participants correct vs false answers"))
 
+    fig.add_trace(go.Scatter(x = table_df_filtered_true["no_task"], y=table_df_filtered_true["time"],  name="Correct answers", mode='markers',
+            marker=dict(
+            color='LightSkyBlue',
+            size=20,
+            line=dict(
+                color='darkslateblue',
+                width=2
+            ))), row=1, col=1)
+
+    fig.add_trace(go.Scatter(x = table_df_filtered_false["no_task"], y=table_df_filtered_false["time"],  name="False answers", mode='markers',        marker=dict(
+            color='darksalmon',
+            size=20,
+            line=dict(
+                color='plum',
+                width=2
+            ))), row=1, col=1 )
+
+    fig.add_trace(go.Violin(y=table_df_filtered_true["time"],  name="Correct answers",fillcolor='lightblue',line_color='blue'), row=2, col=1 )
+    fig.add_trace(go.Violin(y=table_df_filtered_false["time"],  name="False answers",fillcolor='tomato',line_color='red'), row=2, col=1 )
+
+    fig.add_trace(go.Violin(y=table_df_rest_true["time"],  name="Correct answers",fillcolor='slateblue',line_color='steelblue'), row=3, col=1 )
+    fig.add_trace(go.Violin(y=table_df_rest_false["time"],  name="False answers",fillcolor='salmon',line_color='darkred'), row=3, col=1 )
+
+    fig.update_layout(autosize=False, width=1000, height=2000,template='ggplot2')
+    fig.update_yaxes(automargin=True)
 
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
