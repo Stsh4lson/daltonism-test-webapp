@@ -92,7 +92,10 @@ correct_answers = [4, 4, 1, 6, 1, 7, 4, 4, 4 ,6 ,1, 4, 1, 1, 4]
 def start_test():
     
     session['unique_user_id'] = secrets.token_hex(nbytes=16)
-    
+    database_df = pd.read_sql('SELECT unique_user_id FROM formdata', con=engine, coerce_float=True)
+    while database_df[database_df['unique_user_id']==session['unique_user_id']].shape[0]>0:
+        session['unique_user_id'] = secrets.token_hex(nbytes=16)
+
     session['answers'] = {}
     for i in range(0, len(img_list)):
         session['answers'][f'test_{i+1}'] = 0

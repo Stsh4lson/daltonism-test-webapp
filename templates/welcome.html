@@ -6,12 +6,18 @@
 
     <section class="jumbotron text-center">
         <div class="container">
-            <h1 class="jumbotron-heading">Smart daltonism test</h1>
+            <h1 class="jumbotron-heading">Colour blindness test</h1>
             <p class="lead text-muted">
-                Info o daltonizmie i że test działa jakoś tam <br> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ut sollicitudin erat. Nullam at est in ligula pulvinar hendrerit. In molestie, nisi in posuere finibus, mauris nisi molestie
-                elit, vel molestie felis justo tincidunt magna. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec faucibus aliquam nisi, eu porttitor eros semper nec. Nunc tristique aliquet fringilla. Fusce convallis
-                tristique nisl, sed efficitur odio aliquam a. Etiam sodales justo at justo condimentum iaculis. Duis quis purus turpis. Quisque cursus, lorem sed accumsan porttitor, velit libero consectetur sapien, sed iaculis urna nulla quis risus. In
-                consectetur, dui a rutrum auctor, tortor orci congue orci, ut scelerisque odio nulla sed diam. Suspendisse eget tortor viverra, consectetur nisi eu, ultrices est.</p>
+                Welcome on a Colour blindness test site. Here you can check whether or not you have difficulties with colour differentiation. Click “Do a test” to proceed.
+            </p>
+            <h1 class="jumbotron-heading">How does it work?</h1>
+            <p class="lead text-muted">
+                Here we use the Ishihara colour test planes to determine your ability to recognize colours. You will see 15 different colour planes. Each plain contains one or two numbers, that have different colour than the background. The example of such plane is shown below. You need to select what number do you see from answers listed below each picture and click “Next” to proceed to the next plane. At the end statistics are calculated, where you can see the time you needed to answer each question and how well did you performed.
+            </p>
+            <figure class="figure">
+                <img src="static/example.png" class="figure-img img-fluid rounded" alt="Test image" width="500" height="500">
+                <!-- <figcaption class="figure-caption">A caption for the above image.</figcaption> -->
+            </figure>
             <p>
                 <form action="/start_test/" method="post">
                     <button class="btn btn-primary my-2" name="forwardBtn" type="submit">Do a test</button>
